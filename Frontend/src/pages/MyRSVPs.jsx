@@ -21,7 +21,7 @@ function MyRSVPs() {
   const loadMyRSVPs = async () => {
     try {
       const response = await rsvpAPI.get('/my-rsvps');
-      setRsvps(response.data);
+      setRsvps(response.data.data.rsvps);
     } catch (error) {
       console.error('Error loading RSVPs:', error);
     } finally {

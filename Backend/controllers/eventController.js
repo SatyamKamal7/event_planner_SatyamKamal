@@ -283,40 +283,75 @@ const eventController = {
   },
 
   // Get RSVP summary for event
-  getRsvpSummary: async (req, res) => {
-    try {
-      const { id } = req.params;
+ // Get RSVP summary for event (with user details)
+getRsvpSummary: async (req, res) => {
+  try {
+    const { id } = req.params;
 
-      const result = await query(`
-        SELECT 
-          status,
-          COUNT(*) as count
-        FROM rsvps 
-        WHERE event_id = $1 
-        GROUP BY status
-        ORDER BY 
-          CASE status 
-            WHEN 'going' THEN 1
-            WHEN 'maybe' THEN 2
-            WHEN 'decline' THEN 3
-          END
-      `, [id]);
+    // Get RSVP count summary
+    const summaryResult = await query(`
+      SELECT 
+        status,
+        COUNT(*) as count
+      FROM rsvps 
+      WHERE event_id = $1 
+      GROUP BY status
+      ORDER BY 
+        CASE status 
+          WHEN 'going' THEN 1
+          WHEN 'maybe' THEN 2
+          WHEN 'decline' THEN 3
+        END
+    `, [id]);
 
-      res.json({
-        success: true,
-        data: {
-          summary: result.rows
-        }
+    // Get detailed list of users for each RSVP status
+    const userDetailsResult = await query(`
+      SELECT 
+        r.status,
+        u.id AS user_id,
+        u.name,
+        u.email,
+        r.created_at as rsvp_date
+      FROM rsvps r
+      JOIN users u ON r.user_id = u.id
+      WHERE r.event_id = $1
+      ORDER BY 
+        CASE r.status 
+          WHEN 'going' THEN 1
+          WHEN 'maybe' THEN 2
+          WHEN 'decline' THEN 3
+        END, u.name
+    `, [id]);
+
+    // Group users by status
+    const usersByStatus = {};
+    userDetailsResult.rows.forEach(row => {
+      if (!usersByStatus[row.status]) usersByStatus[row.status] = [];
+      usersByStatus[row.status].push({
+        user_id: row.user_id,
+        name: row.name,
+        email: row.email,
+        rsvp_date: row.rsvp_date
       });
+    });
 
-    } catch (error) {
-      console.error('Get RSVP summary error:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Internal server error while fetching RSVP summary'
-      });
-    }
+    res.json({
+      success: true,
+      data: {
+        summary: summaryResult.rows,
+        users: usersByStatus
+      }
+    });
+
+  } catch (error) {
+    console.error('Get RSVP summary error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error while fetching RSVP summary'
+    });
   }
+}
+
 };
 
 module.exports = eventController;

@@ -2,49 +2,49 @@ const { query } = require('../config/database');
 
 const rsvpController = {
   // Get user's RSVPs
-  getUserRsvps: async (req, res) => {
-    try {
-      const userId = req.user.userId;
+ getUserRsvps: async (req, res) => {    
+  try {
+    const userId = req.user.userId;
+    
+    const result = await query(`
+      SELECT 
+        r.*,
+        e.title,
+        e.description,
+        e.date,
+        e.start_time,
+        e.end_time,
+        e.location,
+        u.name AS organizer_name,
+        CASE 
+          WHEN e.date < CURRENT_DATE THEN 'past'
+          WHEN e.date = CURRENT_DATE AND e.end_time::time < CURRENT_TIME::time THEN 'past'
+          ELSE 'upcoming'
+        END AS event_status
+      FROM rsvps r
+      JOIN events e ON r.event_id = e.id
+      JOIN users u ON e.created_by = u.id
+      WHERE r.user_id = $1
+      ORDER BY 
+        e.date DESC,
+        e.start_time DESC
+    `, [userId]);
 
-      const result = await query(`
-        SELECT 
-          r.*,
-          e.title,
-          e.description,
-          e.date,
-          e.start_time,
-          e.end_time,
-          e.location,
-          u.name as organizer_name,
-          CASE 
-            WHEN e.date < CURRENT_DATE THEN 'past'
-            WHEN e.date = CURRENT_DATE AND e.end_time < TO_CHAR(CURRENT_TIME, 'HH24:MI') THEN 'past'
-            ELSE 'upcoming'
-          END as event_status
-        FROM rsvps r
-        JOIN events e ON r.event_id = e.id
-        JOIN users u ON e.created_by = u.id
-        WHERE r.user_id = $1
-        ORDER BY 
-          e.date DESC,
-          e.start_time DESC
-      `, [userId]);
+    res.json({
+      success: true,
+      data: { rsvps: result.rows }
+    });
 
-      res.json({
-        success: true,
-        data: {
-          rsvps: result.rows
-        }
-      });
+  } catch (error) {
+    console.error('Get user RSVPs error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error while fetching RSVPs'
+    });
+  }
+},
 
-    } catch (error) {
-      console.error('Get user RSVPs error:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Internal server error while fetching RSVPs'
-      });
-    }
-  },
+
 
   // Create or update RSVP
   upsertRsvp: async (req, res) => {

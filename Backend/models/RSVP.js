@@ -40,7 +40,7 @@ class RSVP {
            u.name as organizer_name,
            CASE 
              WHEN e.date < CURRENT_DATE THEN 'past'
-             WHEN e.date = CURRENT_DATE AND e.end_time < TO_CHAR(CURRENT_TIME, 'HH24:MI') THEN 'past'
+             WHEN e.date = CURRENT_DATE AND e.end_time < CURRENT_TIME, 'HH24:MI' THEN 'past'
              ELSE 'upcoming'
            END as event_status
          FROM rsvps r
