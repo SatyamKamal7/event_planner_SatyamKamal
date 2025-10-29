@@ -2,7 +2,7 @@
 Author: Satyam Kamal  
 Repository: [event_planner_SatyamKamal](https://github.com/SatyamKamal/event_planner_SatyamKamal)  
 Deployed App:[Live on Vercel](https://event-planner-satyam-kamal.vercel.app/)  
-Demo link: ()
+Demo link: (https://drive.google.com/file/d/1xo0F-2WDyYSBn7lAywUlBgVygmGYGalc/view?usp=drivesdk)
 
 ---
 
