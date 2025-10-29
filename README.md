@@ -94,7 +94,7 @@ Relationships:
 
 # Tech Stack
 
-# Frontend*
+# Frontend
 - React (JavaScript)
 - Axios
 - React Router
