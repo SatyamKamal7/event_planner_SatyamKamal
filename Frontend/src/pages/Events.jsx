@@ -8,6 +8,9 @@ function Events() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [rsvpStatus, setRsvpStatus] = useState({});
 
+ console.log("EVENT",events);
+ 
+
   useEffect(() => {
     loadEvents();
   }, []);
@@ -15,7 +18,7 @@ function Events() {
   const loadEvents = async () => {
     try {
       const response = await eventsAPI.get('/');
-      setEvents(response.data);
+      setEvents(response?.data?.data?.events);
       
       // Load user's RSVP status for each event
       const rsvpResponse = await rsvpAPI.get('/my-rsvps');
@@ -79,34 +82,34 @@ function Events() {
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {events?.map((event) => (
-            <div key={event.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+            <div key={event?.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
               <div className="p-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">{event.title}</h3>
-                <p className="text-gray-600 mb-4 line-clamp-2">{event.description}</p>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">{event?.title}</h3>
+                <p className="text-gray-600 mb-4 line-clamp-2">{event?.description}</p>
                 
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center text-gray-600">
                     <Calendar className="h-4 w-4 mr-2" />
-                    <span>{formatDate(event.date)}</span>
+                    <span>{formatDate(event?.date)}</span>
                   </div>
                   <div className="flex items-center text-gray-600">
                     <Clock className="h-4 w-4 mr-2" />
-                    <span>{formatTime(event.start_time)} - {formatTime(event.end_time)}</span>
+                    <span>{formatTime(event?.start_time)} - {formatTime(event?.end_time)}</span>
                   </div>
                   <div className="flex items-center text-gray-600">
                     <MapPin className="h-4 w-4 mr-2" />
-                    <span>{event.location}</span>
+                    <span>{event?.location}</span>
                   </div>
                   <div className="flex items-center text-gray-600">
                     <Users className="h-4 w-4 mr-2" />
-                    <span>Hosted by {event.created_by_name}</span>
+                    <span>Hosted by {event?.created_by_name}</span>
                   </div>
                 </div>
 
                 <div className="border-t pt-4">
                   <p className="text-sm font-medium text-gray-700 mb-3">Your RSVP:</p>
                   <div className="flex space-x-2">
-                    {['going', 'maybe', 'decline'].map((status) => (
+                    {['going', 'maybe', 'decline']?.map((status) => (
                       <button
                         key={status}
                         onClick={() => handleRSVP(event.id, status)}

@@ -23,11 +23,11 @@ function Dashboard() {
     try {
       const [eventsResponse, rsvpsResponse] = await Promise.all([
         eventsAPI.get('/'),
-        // rsvpAPI.get('/my-rsvps')
-      ]);
+        rsvpAPI.get('/my-rsvps')
+      ]);  
 
       const events = eventsResponse?.data?.data?.events;
-      const rsvps = rsvpsResponse?.data?.data || [];
+      const rsvps = rsvpsResponse?.data?.data?.rsvps || [];
 
       console.log("1234",events,rsvps);
       
